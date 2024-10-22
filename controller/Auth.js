@@ -1,5 +1,7 @@
 //it is an authentication controller
 const express=require('express');
+//validator to validate email format
+const validator=require('validator');
 //importing hasing and salting libraries for hashing the password
 const bcrypt=require('bcryptjs');
 //importing jwt token library for tokenization
@@ -15,12 +17,15 @@ const mongoose = require('mongoose');
 //==============user Registration=====================//
 
 const userRegistration = async (req, res) => {
-    const { name, address, country, state, district, pincode, phoneNumber, email, password } = req.body;
+    const { name, address, country, state, district, pincode, phoneNumber, email, password,dob,gender,bloodGroup} = req.body;
 
     try {
         // Checking if all required fields are given
-        if (!(name && address && country && state && district && pincode && phoneNumber && email && password)) {
+        if (!(name && address &&dob && bloodGroup && gender&& country && state && district && pincode && phoneNumber && email && password)) {
             return res.status(400).json({ error: "All inputs required" });
+        }
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ error: "Invalid email format." });
         }
 
         // Checking if user already exists
@@ -45,6 +50,9 @@ const userRegistration = async (req, res) => {
             pincode,
             phoneNumber,
             email,
+            dob,
+            bloodGroup,
+            gender,
             password: await hashPassword(password)
         });
 
@@ -66,6 +74,9 @@ const userRegistration = async (req, res) => {
             pincode: newUserCreated.pincode,
             phoneNumber: newUserCreated.phoneNumber,
             email: newUserCreated.email,
+            dob: newUserCreated.dob,
+            bloodGroup: newUserCreated.bloodGroup,
+            gender: newUser.gender,
             token: newUserCreated.token,
         };
 
@@ -107,7 +118,7 @@ const globalLogin = async (req, res) => {
             // Create token
             const token = jwt.sign({ user_id: user._id, email, role }, process.env.TOKEN_KEY, { expiresIn: "2h" });
             user.token = token;
-
+            console.log(user.token);
             // Respond with user
             return res.status(200).json({ message: "Login successful", user });
         } else {
@@ -120,5 +131,35 @@ const globalLogin = async (req, res) => {
     }
 };
 
+//logout function
+const userLogout = async (req, res) => {
+    const { email, role } = req.body;
+    try{
+        let user;
+        if(role==="User"){
+            user=await User.findOne({email});
+        }
+        else if(role==="Hospital"){
+            user=await Hospital.findOne({ email });
+        }
+        else if(role==="Admin"){
+            user=await Admin.findOne({ email});
+        }
+        else{
+            return res.status(400).json({error:"Invalid role"});
+        }
+        if(user){
+            user.token="";
+            await user.save();
+            return res.status(200).json({message:"Logged out successfully"});
+        }
+        else{
+            return res.status(400).json({error:"Invalid credentials"});
+        }
+        }catch(err){
+        console.log(err);
+        res.status(500).json({error:"Internal server error"});
+    }
+}
 
-module.exports={userRegistration,globalLogin};
+module.exports={userRegistration,globalLogin,userLogout};

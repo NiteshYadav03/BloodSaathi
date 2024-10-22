@@ -34,6 +34,19 @@ const userSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
+    gender:{
+        type: String,
+        required: true
+    },
+    dob: {
+        type: Date,
+        required: true
+    },
+    bloodGroup: {
+        type: String,
+        required: true
+
+    },
     image: {
         type: String, // Optional field
         default: null // You can set a default if needed
