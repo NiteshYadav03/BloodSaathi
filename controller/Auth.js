@@ -200,4 +200,53 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-module.exports={userRegistration,globalLogin,userLogout,getUserProfile};
+
+//update user profile
+const { body, validationResult } = require('express-validator'); // For validation
+
+const updateUserProfile = async (req, res) => {
+    const userId = req.user.user_id; // Extract user ID from the authenticated user
+    
+    // Validate input data (you can add more validation as needed)
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, address, country, state, district, pincode, phoneNumber, email, dob } = req.body;
+    
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Update user fields
+        user.name = name || user.name;
+        user.address = address || user.address;
+        user.country = country || user.country;
+        user.state = state || user.state;
+        user.district = district || user.district;
+        user.pincode = pincode || user.pincode;
+        user.phoneNumber = phoneNumber || user.phoneNumber;
+        user.email = email || user.email;
+        user.dob = dob || user.dob;
+
+        await user.save(); // Save the updated user
+
+        res.status(200).json({ message: 'User profile updated successfully' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Validate inputs in the route definition
+const updateUserValidationRules = [
+    body('email').isEmail().withMessage('Invalid email address'),
+    body('phoneNumber').isLength({ min: 10, max: 15 }).withMessage('Invalid phone number'),
+    body('dob').isISO8601().withMessage('Invalid date of birth'),
+];
+
+
+module.exports={userRegistration,globalLogin,userLogout,getUserProfile,updateUserProfile,updateUserValidationRules};

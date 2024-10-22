@@ -1,4 +1,4 @@
-Here's an updated README.md for your project, reflecting the progress you've made and the features you've implemented:
+Here's the updated README.md with the addition of the profile update functionality:
 
 ---
 
@@ -16,7 +16,8 @@ The Blood Bank User Portal is a web application designed to connect users with h
 - **Blood Request Functionality**: Users can request blood from registered hospitals.
 - **Donation and Receiving History**: Users can view their history of blood donations and receptions.
 - **Email Notifications**: Users and hospitals receive email notifications for registration approvals and other important updates.
-  
+- **Profile Update**: Users can update their personal details using the `/api/user/update` endpoint.
+
 ## API Endpoints
 
 ### User Endpoints
@@ -24,6 +25,7 @@ The Blood Bank User Portal is a web application designed to connect users with h
 - **POST `/api/user/register`**: Register a new user.
 - **POST `/api/user/login`**: Log in a user and receive a JWT token.
 - **GET `/api/user/profile`**: Get details of the authenticated user, including donation and receiving history.
+- **POST `/api/user/update`**: Update the user's profile details.
 
 ### Hospital Endpoints
 
@@ -91,4 +93,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Feel free to customize this further or let me know if there are any specific sections you’d like to add!
+Feel free to modify any sections or let me know if there’s anything else you’d like to add!
