@@ -2,26 +2,26 @@ require('dotenv').config(); // Load environment variables
 // authMiddleware.js
 
 const jwt = require('jsonwebtoken');
-const Admin = require('../model/admin'); // Import admin model
+const User=require('../model/user'); // Import user model
 const express = require('express');
 
 // Authentication middleware (JWT-based for example)
-const authenticateAdmin = async (req, res, next) => {
+const authenticateUser = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    
+
     if (!token) {
         return res.status(401).json({ error: 'No token provided, authorization denied' });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-        req.user = decoded;
-      
-        // Check if the user is in the database (can add additional checks here if needed)
-        const admin = await Admin.findById(req.user.user_id);
        
-        if (!admin) {
+        req.user = decoded; // Attach the decoded user information to the request
+
+        // Optionally, fetch the user from the database (if you need to check existence)
+        const user = await User.findById(req.user.user_id);
+        // console.log(user);
+        if (!user) {
             return res.status(401).json({ error: 'Invalid token' });
         }
 
@@ -32,4 +32,5 @@ const authenticateAdmin = async (req, res, next) => {
     }
 };
 
-module.exports = authenticateAdmin;
+
+module.exports = authenticateUser;

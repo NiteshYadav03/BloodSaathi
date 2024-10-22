@@ -54,7 +54,9 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String, // Hashed password
         required: true
-    }
+    },
+    donationHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Donation' }],
+    receivingHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Receiving' }]
 });
 
 // Corrected export statement

@@ -3,8 +3,8 @@ const Admin = require('../model/admin');
 const Hospital = require('../model/hospital');
 const passwordGenerator = require('generate-password');
 const bcrypt = require('bcryptjs');
-const approveHospital = require('../approvalMail');
-const denyHospital = require('../DenialMail');
+const approveHospital = require('../mailService/approvalMail');
+const denyHospital = require('../mailService/DenialMail');
 
 
 

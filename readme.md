@@ -1,129 +1,89 @@
-
-# Blood Sathi - Blood Bank Portal
-
-**Blood Sathi** is a blood bank-to-user connecting portal where users can register, view hospital details, book blood online, and use dashboards for both users and hospitals. Admins manage user and hospital access, and hospitals can register, but their dashboards only activate after admin approval.
+Here's an updated README.md for your project, reflecting the progress you've made and the features you've implemented:
 
 ---
+
+# Blood Bank User Portal
+
+## Project Overview
+
+The Blood Bank User Portal is a web application designed to connect users with hospitals for blood donation and receiving services. It allows users to register, view hospital details, request blood, and track their donation and receiving history. The application also includes features for hospital registration, approval by admins, and user authentication.
 
 ## Features
 
-- **User Registration & Login**: Users can create accounts, log in, and book blood online.
-- **Admin Dashboard**: Admin has full access to manage users and hospital requests, approve or reject hospital registrations.
-- **Hospital Registration**: Hospitals can register with details (email, name, address, contact number). Their access is granted only after admin approval.
-- **Email Notifications**: Email is sent to hospitals upon approval or rejection by the admin, containing login credentials if approved.
-- **Role-based Access**: Authentication for users, admins, and hospitals with specific roles and permissions.
-- **Pending Requests**: Admin can view all pending hospital requests and take action to approve or reject them.
+- **User Registration and Login**: Users can create an account and log in to the system securely.
+- **Hospital Registration**: Hospitals can register for access to the platform, pending admin approval.
+- **Admin Dashboard**: Admins can view and manage hospital registration requests.
+- **Blood Request Functionality**: Users can request blood from registered hospitals.
+- **Donation and Receiving History**: Users can view their history of blood donations and receptions.
+- **Email Notifications**: Users and hospitals receive email notifications for registration approvals and other important updates.
+  
+## API Endpoints
 
----
+### User Endpoints
+
+- **POST `/api/user/register`**: Register a new user.
+- **POST `/api/user/login`**: Log in a user and receive a JWT token.
+- **GET `/api/user/profile`**: Get details of the authenticated user, including donation and receiving history.
+
+### Hospital Endpoints
+
+- **POST `/api/hospital/register`**: Register a new hospital (pending admin approval).
+- **GET `/api/hospital/pending-requests`**: Retrieve all pending hospital registration requests.
+- **POST `/api/hospital/pending-requests/:id`**: Approve or deny a pending hospital request.
+
+### Admin Endpoints
+
+- **POST `/api/admin/login`**: Admin login to manage the portal.
+- **GET `/api/admin/pending-requests`**: Get a list of pending hospital requests.
 
 ## Technologies Used
 
 - **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose)
-- **Authentication**: JWT (JSON Web Token)
+- **Database**: MongoDB (using Mongoose)
+- **Authentication**: JWT (JSON Web Tokens)
 - **Email Service**: Nodemailer
-- **Other Libraries**: dotenv, bcryptjs
+- **Environment Variables**: dotenv for managing sensitive information
+- **Frontend**: React (optional for future implementation)
 
----
-
-## Getting Started
-
-### Prerequisites
-
-- **Node.js** installed on your system
-- **MongoDB** database connection string
-- **Gmail** account with App Password enabled for sending emails
-
-### Installation
+## Installation
 
 1. Clone the repository:
-
    ```bash
-   git clone https://github.com/your-username/blood-sathi.git
-   cd blood-sathi
+   git clone <repository-url>
    ```
-
-2. Install the dependencies:
-
+2. Navigate to the project directory:
+   ```bash
+   cd blood-bank-portal
+   ```
+3. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Set up environment variables. Create a `.env` file at the root of your project:
-
-   ```
+4. Create a `.env` file in the root directory and set the following variables:
+   ```plaintext
    PORT=3000
-   MONGO_URI=<your-mongodb-uri>
-   TOKEN_KEY=<your-jwt-secret-key>
-   EMAIL_USER=<your-email-address>
-   EMAIL_PASS=<your-email-app-password>
+   TOKEN_KEY=your_jwt_secret_key
+   EMAIL_USER=your_email@example.com
+   EMAIL_PASS=your_email_password
    ```
-
-4. Run the application:
-
+5. Start the server:
    ```bash
    npm start
    ```
 
----
+## Testing
 
-## API Endpoints
-
-### User
-
-- **POST /api/user/register**: Register a new user
-- **POST /api/user/login**: User login
-
-### Admin
-
-- **POST /api/admin/register**: Register the main admin (automatically handles only one admin)
-- **POST /api/admin/login**: Admin login
-- **GET /api/admin/pending-requests**: View all pending hospital requests (Admin only)
-- **POST /api/admin/pending-requests/:id**: Approve or reject a specific hospital request (Admin only)
-
-### Hospital
-
-- **POST /api/hospital/register**: Register a new hospital (no login until admin approval)
-
----
-
-## Authentication
-
-- **JWT-Based Authentication**: Each request must include a valid JWT token in the `Authorization` header.
-- **Role-Based Access Control**: Admin-only routes are protected by middleware, allowing only admins to access.
-
----
-
-## Email Notifications
-
-When a hospital request is approved or denied, an email is automatically sent using **Nodemailer**. The approval email contains login credentials for the hospital.
-
----
-
-## Development Process
-
-1. **User & Admin Registration**: Implemented registration and login functionality for users and admins, with JWT authentication.
-2. **Hospital Registration**: Hospitals can register but require admin approval to activate their dashboards.
-3. **Approval Workflow**: Admins can view pending hospital requests and take action. Upon approval, hospitals receive login credentials via email.
-4. **Error Handling**: Implemented proper error handling, including duplicate key issues and invalid tokens.
-
----
+Use tools like Postman to test the API endpoints. Ensure to include the `Authorization` header with the JWT token for protected routes.
 
 ## Future Enhancements
 
-- **Blood Booking History**: Users will have the ability to track their blood booking history.
-- **Donation Records**: Implement donation tracking features.
-- **Improved Dashboard**: Add more details to user and hospital dashboards for better usability.
+- **Frontend Development**: Build a user-friendly frontend using React.
+- **Improved Error Handling**: Implement more granular error handling for better user experience.
+- **User Interface for Admins and Hospitals**: Create dashboards for admins and hospitals to manage their functionalities more efficiently.
 
----
+## Contributing
 
-## Running Tests
-
-To run tests, you can use Postman or any API testing tool. Below is how to set up authentication:
-
-- In **Postman**, add an `Authorization` header with the value `Bearer <your-token>` for routes requiring authentication.
-
----
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any feature requests or bugs.
 
 ## License
 
@@ -131,13 +91,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## Contact
-
-For more information or help, feel free to contact:
-
-- **Email**: ankurpunia28@gmail.com
-- **GitHub**: [ankurpunia30](https://github.com/ankurpunia30)
-
----
-
-Let me know if you need any modifications or additions!
+Feel free to customize this further or let me know if there are any specific sections you’d like to add!

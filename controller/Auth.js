@@ -162,4 +162,42 @@ const userLogout = async (req, res) => {
     }
 }
 
-module.exports={userRegistration,globalLogin,userLogout};
+
+//get user profile
+const getUserProfile = async (req, res) => {
+    try {
+        // Extract the user ID from the decoded token
+        const userId = req.user.user_id; // Assuming req.user is populated by your authentication middleware
+        console.log(userId);
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        // Check if user exists
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Respond with user details
+        res.status(200).json({
+            name: user.name,
+            address: user.address,
+            country: user.country,
+            state: user.state,
+            district: user.district,
+            pincode: user.pincode,
+            phoneNumber: user.phoneNumber,
+            email: user.email,
+            gender: user.gender,
+            dob: user.dob,
+            bloodGroup: user.bloodGroup,
+            donationHistory: user.donationHistory,
+            receivingHistory: user.receivingHistory
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+module.exports={userRegistration,globalLogin,userLogout,getUserProfile};
