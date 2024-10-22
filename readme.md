@@ -1,6 +1,3 @@
-Here’s a `README.md` for your project, summarizing the work you've done so far. This document highlights the key functionalities, installation, and usage instructions.
-
----
 
 # Blood Sathi - Blood Bank Portal
 
