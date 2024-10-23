@@ -53,7 +53,7 @@ const getPendingHospitalsById = async (req, res) => {
                 lowercase: true,
                 symbols: true
             });
-
+            console.log("Generated password: ", generatedPassword); // Log the generated password
             // Update the hospital's status and password
             hospital.approvalStatus = "Approved";
             hospital.isApproved = true;

@@ -10,6 +10,8 @@ const jwt=require('jsonwebtoken');
 const User=require('../model/user');
 const Hospital=require('../model/hospital');
 const Admin=require('../model/admin');
+//importing blood request model
+const BloodRequest=require('../model/bloodRequest');
 const mongoose = require('mongoose');
 //to do for this controller
 //1.registration
@@ -256,12 +258,13 @@ const requestBlood = async (req, res) => {
 
         // Create the blood request (we assume a BloodRequest model)
         const newRequest = new BloodRequest({
-            userId: user.user_id,
+            userId: user._id,
             hospitalId: hospital._id,
             bloodGroup,
             quantity,
             status: "Pending" // Request starts as pending
         });
+        
 
         await newRequest.save();
 

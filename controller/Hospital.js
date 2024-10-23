@@ -52,7 +52,7 @@ const hospitalRegister=async(req,res)=>{
 
 }
 
-// Confirm Blood Reception Endpoint (For Hospitals)
+// Confirm Blood Reception
 const confirmBloodReception = async (req, res) => {
     const { requestId } = req.body;
 
@@ -78,7 +78,7 @@ const confirmBloodReception = async (req, res) => {
 
         // Create a new receiving entry
         const newReceiving = new Receiving({
-            userId: user.user_id,
+            userId: user._id,
             hospitalId: bloodRequest.hospitalId,
             bloodGroup: bloodRequest.bloodGroup,
             quantity: bloodRequest.quantity,
@@ -88,7 +88,7 @@ const confirmBloodReception = async (req, res) => {
         await newReceiving.save();
 
         // Update the user's receiving history
-        user.receivingHistory.push(newReceiving.user_id);
+        user.receivingHistory.push(newReceiving._id);
         await user.save();
 
         res.status(200).json({ message: "Blood reception confirmed", receiving: newReceiving });
@@ -98,7 +98,7 @@ const confirmBloodReception = async (req, res) => {
     }
 };
 
-//getting all pending blood requests
+// Getting all pending blood requests
 const getPendingBloodRequests = async (req, res) => {
     try {
         const bloodRequests = await BloodRequest.find({ status: "Pending" });
@@ -109,9 +109,24 @@ const getPendingBloodRequests = async (req, res) => {
     }
 };
 
+// Integrate functions for a cohesive workflow
+const handleBloodReception = async (req, res) => {
+    // Step 1: Retrieve all pending blood requests
+    const pendingRequests = await BloodRequest.find({ status: "Pending" });
+    if (pendingRequests.length === 0) {
+        return res.status(404).json({ error: "No pending blood requests found" });
+    }
+
+    // Step 2: Confirm reception for a specific request
+    const { requestId } = req.body; // Get the requestId from the body
+    await confirmBloodReception({ body: { requestId } }, res);
+};
+
+
 
 module.exports={
     hospitalRegister,
     confirmBloodReception,
-    getPendingBloodRequests
+    getPendingBloodRequests,
+    handleBloodReception
 };

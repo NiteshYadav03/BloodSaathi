@@ -36,9 +36,6 @@ const authenticateHospital = async (req, res, next) => {
 module.exports = require('dotenv').config(); // Load environment variables
 // authMiddleware.js
 
-const jwt = require('jsonwebtoken');
-const User=require('../model/user'); // Import user model
-const express = require('express');
 
 // Authentication middleware (JWT-based for example)
 const authenticateUser = async (req, res, next) => {

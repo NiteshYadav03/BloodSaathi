@@ -1,16 +1,17 @@
 //importing the model
 const express=require('express');
-const Hospital=require('../model/hospital');
-const {hospitalRegister,confirmBloodReception,getPendingRequests} = require('../controller/Hospital');
-const {authenticateHospital} = require('../middlewear/hospitalMiddlewear');
+const {hospitalRegister,confirmBloodReception,getPendingBloodRequests,handleBloodReception} = require('../controller/Hospital');
+const authenticateHospital= require('../middlewear/authHospitalMiddlewear');
 //creating router
 const router=express.Router();
 
 //hospital Registration
 router.post('/register',hospitalRegister);
-//confirm blood reception
-router.post('/confirm',authenticateHospital,confirmBloodReception);
+
 
 //getting all pending request
-router.get('/pending',authenticateHospital,getPendingRequests);
+router.get('/pending',authenticateHospital,getPendingBloodRequests);
+
+router.post('/reception',authenticateHospital,handleBloodReception);
+
 module.exports=router;
