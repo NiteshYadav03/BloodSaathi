@@ -241,6 +241,55 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
+
+// Request Blood Endpoint
+const requestBlood = async (req, res) => {
+    const { userId, hospitalId, bloodGroup, quantity } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        const hospital = await Hospital.findById(hospitalId);
+
+        if (!user || !hospital) {
+            return res.status(404).json({ error: "User or Hospital not found" });
+        }
+
+        // Create the blood request (we assume a BloodRequest model)
+        const newRequest = new BloodRequest({
+            userId: user.user_id,
+            hospitalId: hospital._id,
+            bloodGroup,
+            quantity,
+            status: "Pending" // Request starts as pending
+        });
+
+        await newRequest.save();
+
+        res.status(201).json({ message: "Blood request submitted", request: newRequest });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+// Get Receiving History for User
+const getReceivingHistory = async (req, res) => {
+    const { userId } = req.user; // Assuming user is authenticated
+
+    try {
+        const user = await User.findById(userId).populate('receivingHistory');
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ receivingHistory: user.receivingHistory });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
 // Validate inputs in the route definition
 const updateUserValidationRules = [
     body('email').isEmail().withMessage('Invalid email address'),
@@ -249,4 +298,4 @@ const updateUserValidationRules = [
 ];
 
 
-module.exports={userRegistration,globalLogin,userLogout,getUserProfile,updateUserProfile,updateUserValidationRules};
+module.exports={userRegistration,globalLogin,userLogout,getUserProfile,updateUserProfile,updateUserValidationRules,requestBlood,getReceivingHistory};

@@ -1,6 +1,6 @@
 const express=require('express');
 const router=express.Router();
-const {userRegistration, globalLogin,userLogout,getUserProfile,updateUserProfile,updateUserValidationRules} =require('../controller/Auth');
+const {userRegistration, globalLogin,userLogout,getUserProfile,updateUserProfile,updateUserValidationRules,requestBlood,getReceivingHistory} =require('../controller/Auth');
 const authenticateUser = require('../middlewear/userMiddlewear');
 
 //user registration route
@@ -14,5 +14,10 @@ router.post('/logout',userLogout);
 router.post('/profile',authenticateUser,getUserProfile);
 //update user profile
 router.put('/update',authenticateUser,updateUserValidationRules,updateUserProfile);
+
+//requesting for blood
+router.post('/request-blood',authenticateUser,requestBlood);
+//confirming blood reception
+router.get('/receiving-history',authenticateUser,getReceivingHistory);
 
 module.exports=router;

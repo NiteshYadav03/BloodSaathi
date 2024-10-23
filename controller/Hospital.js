@@ -4,6 +4,10 @@ const express=require('express');
 const validator = require('validator');
 
 const Hospital=require('../model/hospital');
+const BloodRequest = require('../model/bloodRequest');
+const Receiving = require('../model/receviing');
+const User = require('../model/user');
+const mongoose = require('mongoose');
 //hospital registration
 const hospitalRegister=async(req,res)=>{
     const { hospitalName, address, email } = req.body;
@@ -47,4 +51,67 @@ const hospitalRegister=async(req,res)=>{
     }
 
 }
-module.exports=hospitalRegister;
+
+// Confirm Blood Reception Endpoint (For Hospitals)
+const confirmBloodReception = async (req, res) => {
+    const { requestId } = req.body;
+
+    try {
+        const bloodRequest = await BloodRequest.findById(requestId);
+        if (!bloodRequest) {
+            return res.status(404).json({ error: "Blood request not found" });
+        }
+
+        if (bloodRequest.status !== "Pending") {
+            return res.status(400).json({ error: "Blood request is not pending" });
+        }
+
+        // Update the blood request status to 'Completed'
+        bloodRequest.status = "Completed";
+        await bloodRequest.save();
+
+        // Add the blood reception to the user's receiving history
+        const user = await User.findById(bloodRequest.userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Create a new receiving entry
+        const newReceiving = new Receiving({
+            userId: user.user_id,
+            hospitalId: bloodRequest.hospitalId,
+            bloodGroup: bloodRequest.bloodGroup,
+            quantity: bloodRequest.quantity,
+            date: new Date()
+        });
+
+        await newReceiving.save();
+
+        // Update the user's receiving history
+        user.receivingHistory.push(newReceiving.user_id);
+        await user.save();
+
+        res.status(200).json({ message: "Blood reception confirmed", receiving: newReceiving });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+//getting all pending blood requests
+const getPendingBloodRequests = async (req, res) => {
+    try {
+        const bloodRequests = await BloodRequest.find({ status: "Pending" });
+        res.status(200).json(bloodRequests);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+module.exports={
+    hospitalRegister,
+    confirmBloodReception,
+    getPendingBloodRequests
+};

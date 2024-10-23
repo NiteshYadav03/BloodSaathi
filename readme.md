@@ -1,4 +1,4 @@
-Here's the updated README.md with the addition of the profile update functionality:
+Here's the updated documentation reflecting the current state of your Blood Bank User Portal project, including the features and functionalities you've implemented so far.
 
 ---
 
@@ -13,10 +13,9 @@ The Blood Bank User Portal is a web application designed to connect users with h
 - **User Registration and Login**: Users can create an account and log in to the system securely.
 - **Hospital Registration**: Hospitals can register for access to the platform, pending admin approval.
 - **Admin Dashboard**: Admins can view and manage hospital registration requests.
-- **Blood Request Functionality**: Users can request blood from registered hospitals.
-- **Donation and Receiving History**: Users can view their history of blood donations and receptions.
+- **Blood Request Functionality**: Users can request blood from registered hospitals, and hospitals can confirm the receipt of blood.
+- **Donation and Receiving History**: Users can view their history of blood donations and receptions, which is updated based on hospital confirmations.
 - **Email Notifications**: Users and hospitals receive email notifications for registration approvals and other important updates.
-- **Profile Update**: Users can update their personal details using the `/api/user/update` endpoint.
 
 ## API Endpoints
 
@@ -25,18 +24,45 @@ The Blood Bank User Portal is a web application designed to connect users with h
 - **POST `/api/user/register`**: Register a new user.
 - **POST `/api/user/login`**: Log in a user and receive a JWT token.
 - **GET `/api/user/profile`**: Get details of the authenticated user, including donation and receiving history.
-- **POST `/api/user/update`**: Update the user's profile details.
+- **POST `/api/user/request-blood`**: Request blood from a hospital. 
+- **GET `/api/user/receiving-history`**: View the user's receiving history, which shows records of received blood.
 
 ### Hospital Endpoints
 
 - **POST `/api/hospital/register`**: Register a new hospital (pending admin approval).
 - **GET `/api/hospital/pending-requests`**: Retrieve all pending hospital registration requests.
 - **POST `/api/hospital/pending-requests/:id`**: Approve or deny a pending hospital request.
+- **POST `/api/hospital/confirm-receipt`**: Confirm the receipt of blood for a user.
 
 ### Admin Endpoints
 
 - **POST `/api/admin/login`**: Admin login to manage the portal.
 - **GET `/api/admin/pending-requests`**: Get a list of pending hospital requests.
+
+## Database Models
+
+### User Model
+
+- **Fields**:
+  - `name`: String, required
+  - `address`: String, required
+  - `country`: String, required
+  - `state`: String, required
+  - `district`: String, required
+  - `pincode`: String, required
+  - `phoneNumber`: String, required
+  - `email`: String, unique, required
+  - `gender`: String, required
+  - `dob`: Date, required
+  - `bloodGroup`: String, required
+  - `image`: String, optional
+  - `password`: String (hashed), required
+  - `donationHistory`: Array of ObjectIds, referencing Donation model
+  - `receivingHistory`: Array of ObjectIds, referencing Receiving model
+
+### Hospital Model
+
+- **Fields**: Similar structure to the User model, with additional fields specific to hospital details (e.g., hospital name, email).
 
 ## Technologies Used
 
@@ -93,4 +119,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Feel free to modify any sections or let me know if there’s anything else you’d like to add!
+Feel free to customize this further or let me know if there are any specific sections you’d like to add or modify!
