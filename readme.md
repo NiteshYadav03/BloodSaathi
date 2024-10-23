@@ -1,6 +1,4 @@
-Here's the updated documentation reflecting the current state of your Blood Bank User Portal project, including the features and functionalities you've implemented so far.
 
----
 
 # Blood Bank User Portal
 
