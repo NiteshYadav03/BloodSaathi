@@ -164,6 +164,44 @@ const userLogout = async (req, res) => {
     }
 }
 
+//change password function
+const changePassword = async (req, res) => {
+    const { email, oldPassword, newPassword, role } = req.body;
+    try {
+        let user;
+        if (role === "User") {
+            user = await User.findOne
+            ({ email });
+        } else if (role === "Hospital") {
+            user = await Hospital.findOne
+            ({ email });
+        } else if (role === "Admin") {
+            user = await Admin.findOne
+            ({ email });
+        } else {
+            return res.status(400).json({ error: "Invalid role" });
+        }
+        if (user) {
+            const validPassword = await bcrypt.compare(oldPassword, user.password);
+            if (!validPassword) {
+                return res.status(400).json({ error: "Invalid credentials" });
+            }
+            const hashPassword = async (password) => {
+                const salt = await bcrypt.genSalt(10);
+                return await bcrypt.hash(password, salt);
+            }
+            user.password = await hashPassword(newPassword);
+            await user.save();
+            return res.status(200).json({ message: "Password changed successfully" });
+        } else {
+            return res.status(400).json({ error: "Invalid credentials" });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 
 //get user profile
 const getUserProfile = async (req, res) => {
@@ -301,4 +339,12 @@ const updateUserValidationRules = [
 ];
 
 
-module.exports={userRegistration,globalLogin,userLogout,getUserProfile,updateUserProfile,updateUserValidationRules,requestBlood,getReceivingHistory};
+module.exports={userRegistration,
+    globalLogin,
+    userLogout,
+    getUserProfile,
+    updateUserProfile,
+    updateUserValidationRules,
+    requestBlood,
+    getReceivingHistory,
+    changePassword};

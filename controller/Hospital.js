@@ -8,6 +8,7 @@ const BloodRequest = require('../model/bloodRequest');
 const Receiving = require('../model/receviing');
 const User = require('../model/user');
 const mongoose = require('mongoose');
+const { body, validationResult } = require('express-validator'); // For validation
 //hospital registration
 const hospitalRegister=async(req,res)=>{
     const { hospitalName, address, email } = req.body;
@@ -124,9 +125,69 @@ const handleBloodReception = async (req, res) => {
 
 
 
+//getting hospital details
+const getHospitalDetails=async(req,res)=>{
+    try{
+        console.log(req.user);
+        // Assume `hospitalId` is extracted from the authentication token (JWT/session)
+        const { user_id} = req.user; // Extracted from middleware
+        
+        const hospital = await Hospital.findById(user_id);
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital not found" });
+        }
+
+        res.status(200).json({
+            hospitalName: hospital.hospitalName,
+            address: hospital.address,
+            email: hospital.email,
+            approvalStatus: hospital.approvalStatus,
+            contactNumber: hospital.contactNumber,
+    })
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+const updateHospitalDetails = async (req, res) => {
+    // Validate input data (you can add more validation as needed)
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { hospitalName, address, email, contactNumber } = req.body;
+        const { user_id } = req.user;
+
+        // Find the hospital by id
+        const hospital = await Hospital.findById(user_id);
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital not found" });
+        }
+
+        // Update hospital details if provided
+        hospital.hospitalName = hospitalName || hospital.hospitalName;
+        hospital.address = address || hospital.address;
+        hospital.email = email || hospital.email;
+        hospital.contactNumber = contactNumber || hospital.contactNumber;
+
+        // Save updated hospital
+        await hospital.save();
+
+        res.status(200).json({ message: 'Hospital profile updated successfully', hospital });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 module.exports={
     hospitalRegister,
     confirmBloodReception,
     getPendingBloodRequests,
-    handleBloodReception
+    handleBloodReception,
+    getHospitalDetails,
+    updateHospitalDetails
 };
