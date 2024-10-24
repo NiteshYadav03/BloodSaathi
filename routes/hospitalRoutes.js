@@ -1,6 +1,6 @@
 //importing the model
 const express=require('express');
-const {hospitalRegister,confirmBloodReception,getPendingBloodRequests,handleBloodReception,getHospitalDetails,updateHospitalDetails} = require('../controller/Hospital');
+const {hospitalRegister,getPendingBloodRequests,handleBloodReception,getHospitalDetails,updateHospitalDetails, getBloodStock, maintainBloodStock} = require('../controller/Hospital');
 const authenticateHospital= require('../middlewear/authHospitalMiddlewear');
 //creating router
 const router=express.Router();
@@ -18,5 +18,11 @@ router.put('/update',authenticateHospital,updateHospitalDetails);
 router.get('/pending',authenticateHospital,getPendingBloodRequests);
 
 router.post('/reception',authenticateHospital,handleBloodReception);
+
+//maintaining the blood stock
+router.post('/stock/maintain',authenticateHospital,maintainBloodStock);
+//getting all stock
+router.get('/stock/all',authenticateHospital,getBloodStock);
+
 
 module.exports=router;

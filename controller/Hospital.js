@@ -7,6 +7,7 @@ const Hospital=require('../model/hospital');
 const BloodRequest = require('../model/bloodRequest');
 const Receiving = require('../model/receviing');
 const User = require('../model/user');
+const BloodStock=require('../model/bloodStock');
 const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator'); // For validation
 //hospital registration
@@ -53,51 +54,44 @@ const hospitalRegister=async(req,res)=>{
 
 }
 
-// Confirm Blood Reception
+// Confirm Blood Reception by the hospital and also decrement the blood stock
 const confirmBloodReception = async (req, res) => {
-    const { requestId } = req.body;
-
-    try {
+    try{
+        const { requestId } = req.body;
         const bloodRequest = await BloodRequest.findById(requestId);
         if (!bloodRequest) {
             return res.status(404).json({ error: "Blood request not found" });
         }
-
-        if (bloodRequest.status !== "Pending") {
-            return res.status(400).json({ error: "Blood request is not pending" });
+        if (bloodRequest.status === "Completed") {
+            return res.status(400).json({ error: "Blood request already completed" });
         }
-
-        // Update the blood request status to 'Completed'
+        const { hospitalId, bloodGroup, quantity } = bloodRequest;
+        const bloodStock = await BloodStock.findOne({ hospitalId, bloodGroup });
+        if (!bloodStock) {
+            return res.status(404).json({ error: "Blood stock not found" });
+        }
+        if (bloodStock.quantity < quantity) {
+            return res.status(400).json({ error: "Insufficient blood stock" });
+        }
+        bloodStock.quantity -= quantity;
+        await bloodStock.save();
         bloodRequest.status = "Completed";
         await bloodRequest.save();
-
-        // Add the blood reception to the user's receiving history
-        const user = await User.findById(bloodRequest.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        // Create a new receiving entry
-        const newReceiving = new Receiving({
-            userId: user._id,
-            hospitalId: bloodRequest.hospitalId,
-            bloodGroup: bloodRequest.bloodGroup,
-            quantity: bloodRequest.quantity,
-            date: new Date()
+        const receiving = new Receiving({
+            userId: bloodRequest.userId,
+            hospitalId,
+            bloodGroup,
+            quantity
         });
+        await receiving.save();
+        res.status(200).json({ message: "Blood reception confirmed successfully" });
 
-        await newReceiving.save();
-
-        // Update the user's receiving history
-        user.receivingHistory.push(newReceiving._id);
-        await user.save();
-
-        res.status(200).json({ message: "Blood reception confirmed", receiving: newReceiving });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ error: "Internal Server Error" });
     }
-};
+    catch(err){
+        console.log(err);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
 
 // Getting all pending blood requests
 const getPendingBloodRequests = async (req, res) => {
@@ -183,11 +177,62 @@ const updateHospitalDetails = async (req, res) => {
     }
 };
 
+
+//maintaining blood stock
+const maintainBloodStock=async(req,res)=>{
+    try{
+        //assuming hospitalId is extracted from token
+        const { user_id } = req.user;
+        const { bloodGroup, quantity } = req.body;
+        //checking if hospital exists
+        const hospital = await Hospital.findById(user_id);
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital not found" });
+        }
+        //checking if blood group exists
+        const bloodStock = await BloodStock.findOne({ hospitalId: user_id, bloodGroup });
+        if (bloodStock) {
+            bloodStock.quantity += quantity;
+            await bloodStock.save();
+        } else {
+            const newBloodStock = new BloodStock({
+                hospitalId: user_id,
+                bloodGroup,
+                quantity
+            });
+            await newBloodStock.save();
+        }
+        res.status(200).json({ message: "Blood stock updated successfully" });
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+//see the current stock
+const getBloodStock=async(req,res)=>{
+    try{
+        //assuming hospitalId is extracted from token
+        const { user_id } = req.user;
+        const bloodStock = await BloodStock.find({ hospitalId: user_id });
+        res.status(200).json(bloodStock);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+
 module.exports={
     hospitalRegister,
     confirmBloodReception,
     getPendingBloodRequests,
     handleBloodReception,
     getHospitalDetails,
-    updateHospitalDetails
+    updateHospitalDetails,
+    maintainBloodStock,
+    getBloodStock
 };
