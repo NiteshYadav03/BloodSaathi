@@ -34,7 +34,8 @@ const denyHospital = async (req, res) => {
         res.status(200).json({ message: "Hospital denied and email sent" });
 
     } catch (err) {
-        res.status(500).json({ error: "Server error" });
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 

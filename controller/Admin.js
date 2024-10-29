@@ -33,8 +33,9 @@ const getAllPendingHospitals = async (req, res) => {
 // Handle approval or denial of hospital by ID
 const getPendingHospitalsById = async (req, res) => {
     const { id } = req.params;
+    
     const { decision, denialReason } = req.body; // Including optional denialReason
-
+   
     try {
         const hospital = await Hospital.findById(id);
 
@@ -78,9 +79,9 @@ const getPendingHospitalsById = async (req, res) => {
 
             // Send denial email with the reason
             await denyHospital(hospital.email, denialReason || "Your request was denied.");
-
-            // Optionally delete the hospital from the database after denying
+            
             await Hospital.findByIdAndDelete(id);
+
 
             return res.status(200).json({ message: "Hospital denied and deleted." });
         }
@@ -236,8 +237,118 @@ const createUser=async(req,res)=>{
     }
 
     };
-//creating a new hospital
+
+    //updting user details by id
+    const updateUser = async (req, res) => {
+        try {
+          const userId = req.params.id;
+            console.log(userId);
+          const { name, email, bloodGroup, address } = req.body;
+            console.log(req.body);
+          // Find the user by ID
+          const user = await User.findById(userId);
+        
+          if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+          }
+      
+          user.name = name || user.name;
+        user.email = email || user.email;
+        user.bloodGroup = bloodGroup|| user.bloodGroup;
+       
+        user.address = address || user.address;
+
+    // Save the updated user document
+         const updatedUser = await user.save();
+          console.log(updatedUser);
+          res.status(200).json({ message: 'User updated successfully', data: updatedUser });
+        } catch (error) {
+            console.error(error);
+          res.status(500).json({ message: 'Error updating user', error: error.message });
+        }
+      };
+      
+
+      const createHospital=async(req,res)=>{
+        const { hospitalName, address, email,contactNumber } = req.body;
+    
+  
+        try{
+            //checking input values
+            if(!(hospitalName && address&& email)){
+                res.status(400).json({ error: "All inputs required" });
+            }
+            if (!validator.isEmail(email)) {
+                return res.status(400).json({ error: "Invalid email format." });
+            }
+            //cheking if hospital already exists
+            const hospital = await Hospital.findOne({email});
+             
+            if(hospital){
+                return res.status(422).json({error:"Hospital already exists"});
+            }
+            //creating new hosptial
+            const newhospital = new Hospital({
+                hospitalName: hospitalName,
+                address:address,
+                email: email,
+                contactNumber:contactNumber
+            });
+          
+            //saving hospital
+            const data=await newhospital.save();
+            
+            const hosptialResponse = {
+                hospitalName: data.hospitalName,
+                address: data.address,
+                email: data.email,
+                contactNumber:data.contactNumber
+            };
+          
+            res.status(200).json(hosptialResponse);
+        }
+        catch(err){
+            console.log(err);
+            res.status(500).json({error:"Internal Server Error"});
+        }
+    
+      };
+
+
+      //updating hospital details
+    const updateHospital=async(req,res)=>{
+          // Validate input data (you can add more validation as needed)
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+        const { hospitalName, email, contactNumber } = req.body;
+        const { user_id } = req.user;
+
+        // Find the hospital by id
+        const hospital = await Hospital.findById(user_id);
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital not found" });
+        }
+
+        // Update hospital details if provided
+        hospital.hospitalName = hospitalName || hospital.hospitalName;
+        
+        hospital.email = email || hospital.email;
+        hospital.contactNumber = contactNumber || hospital.contactNumber;
+
+        // Save updated hospital
+        await hospital.save();
+
+        res.status(200).json({ message: 'Hospital profile updated successfully', hospital });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+    };
 
 module.exports = { 
     getAllPendingHospitals, getPendingHospitalsById
-    ,deleteHospital, deleteUser, getAllUsers, getAllHospitals, createUser};
+    ,deleteHospital, deleteUser, getAllUsers, getAllHospitals, createUser, updateUser,createHospital,updateHospital};

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { resolveContent } = require('nodemailer/lib/shared');
 
 const hospitalSchema = new mongoose.Schema({
     hospitalName: {
@@ -53,6 +54,14 @@ const hospitalSchema = new mongoose.Schema({
     password: {
         type: String,
         required: false,
+    },
+    token:{
+        type:String,
+        required:false
+    },
+    role:{ 
+        type:String,
+        default:"Hospital"
     }
 });
 

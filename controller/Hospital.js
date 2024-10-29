@@ -8,6 +8,7 @@ const BloodRequest = require('../model/bloodRequest');
 const Receiving = require('../model/receviing');
 const User = require('../model/user');
 const BloodStock=require('../model/bloodStock');
+const BloodCamp=require('../model/bloodCamps');
 const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator'); // For validation
 //hospital registration
@@ -58,6 +59,7 @@ const hospitalRegister=async(req,res)=>{
 const confirmBloodReception = async (req, res) => {
     try{
         const { requestId } = req.body;
+        const {decision}=req.body;
         const bloodRequest = await BloodRequest.findById(requestId);
         if (!bloodRequest) {
             return res.status(404).json({ error: "Blood request not found" });
@@ -65,6 +67,12 @@ const confirmBloodReception = async (req, res) => {
         if (bloodRequest.status === "Completed") {
             return res.status(400).json({ error: "Blood request already completed" });
         }
+        if (decision === "Rejected") {
+            bloodRequest.status = "Rejected";
+            await bloodRequest.save();
+            return res.status(200).json({ message: "Blood request rejected successfully" });
+        }
+
         const { hospitalId, bloodGroup, quantity } = bloodRequest;
         const bloodStock = await BloodStock.findOne({ hospitalId, bloodGroup });
         if (!bloodStock) {
@@ -107,14 +115,17 @@ const getPendingBloodRequests = async (req, res) => {
 // Integrate functions for a cohesive workflow
 const handleBloodReception = async (req, res) => {
     // Step 1: Retrieve all pending blood requests
+  
+    
     const pendingRequests = await BloodRequest.find({ status: "Pending" });
     if (pendingRequests.length === 0) {
         return res.status(404).json({ error: "No pending blood requests found" });
     }
 
     // Step 2: Confirm reception for a specific request
-    const { requestId } = req.body; // Get the requestId from the body
-    await confirmBloodReception({ body: { requestId } }, res);
+    const { requestId } = req.body; 
+    const {decision}=req.body;
+    await confirmBloodReception({ body: { requestId,decision} }, res);
 };
 
 
@@ -122,7 +133,7 @@ const handleBloodReception = async (req, res) => {
 //getting hospital details
 const getHospitalDetails=async(req,res)=>{
     try{
-        console.log(req.user);
+      
         // Assume `hospitalId` is extracted from the authentication token (JWT/session)
         const { user_id} = req.user; // Extracted from middleware
         
@@ -184,6 +195,10 @@ const maintainBloodStock=async(req,res)=>{
         //assuming hospitalId is extracted from token
         const { user_id } = req.user;
         const { bloodGroup, quantity } = req.body;
+        if (!bloodGroup || !quantity) {
+            return res.status(400).json({ message: "All inputs required" });
+        }
+        console.log(bloodGroup, quantity, user_id);
         //checking if hospital exists
         const hospital = await Hospital.findById(user_id);
         if (!hospital) {
@@ -226,6 +241,63 @@ const getBloodStock=async(req,res)=>{
 }
 
 
+//blood camp registration
+const bloodCampByHospital=async(req,res)=>{
+    try{
+        const { campName, date, time, location, notes } = req.body;
+        const { user_id } = req.user;
+        const hospital = await Hospital.findById(user_id);
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital not found" });
+        }
+        const newBloodCamp = new BloodCamp({
+            campName,
+            date,
+            time,
+            location,
+            notes,
+            hospitalId: user_id
+        });
+        await newBloodCamp.save();
+        res.status(200).json({ message: "Blood camp registered successfully" });
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+const getPendingBloodRequestsByHospital = async (req, res) => {
+    // console.log("getPendingBloodRequestsByHospital");
+    try {
+        const { user_id } = req.user;
+
+        // Validate user_id
+        if (!user_id) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
+
+        // Fetch pending blood requests for the logged-in hospital and populate the user details
+        const bloodRequests = await BloodRequest.find({ hospitalId: user_id })
+            .populate({ path: 'userId', select: 'name' }); // Populate with only the 'name' field of the user
+
+        // Check if any requests were found
+        
+        if (bloodRequests.length === 0) {
+            return res.status(404).json({ message: "No pending blood requests found for this hospital" });
+        }
+
+        // Respond with the found blood requests
+        res.status(200).json(bloodRequests);
+    } catch (err) {
+        console.error("Error fetching pending blood requests:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+
+
 module.exports={
     hospitalRegister,
     confirmBloodReception,
@@ -234,5 +306,7 @@ module.exports={
     getHospitalDetails,
     updateHospitalDetails,
     maintainBloodStock,
-    getBloodStock
+    getBloodStock,
+    bloodCampByHospital,
+    getPendingBloodRequestsByHospital
 };

@@ -55,6 +55,13 @@ const userSchema = new mongoose.Schema({
         type: String, // Hashed password
         required: true
     },
+    token: {
+        type: String // Optional field
+    },
+    role: {
+        type: String,
+        default: 'User' // Set a default value
+    },
     donationHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Donation' }],
     receivingHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Receiving' }]
 });

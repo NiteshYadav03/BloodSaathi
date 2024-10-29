@@ -1,4 +1,6 @@
 require('dotenv').config();
+//importing the cors
+const cors = require('cors');
 const express = require('express');
 const connectDb = require('./config/db');
 //getting routes
@@ -11,6 +13,15 @@ const app = express();
 // Connecting with the database
  connectDb();
 // createAdmin(); // Call the function to ensure admin user is created
+//using the cors
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true,
+};
+app.use(cors(corsOptions));
+
+//using the routes\
+
 
 //calling the routes
 //parsing the json data

@@ -5,7 +5,7 @@ const bloodRequestSchema = new mongoose.Schema({
     hospitalId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital', required: true },
     bloodGroup: { type: String, required: true },
     quantity: { type: Number, required: true },
-    status: { type: String, enum: ["Pending", "Completed"], default: "Pending" }
+    status: { type: String, enum: ["Pending","Rejected", "Completed"], default: "Pending" }
 });
 
 const BloodRequest = mongoose.model('BloodRequest', bloodRequestSchema);

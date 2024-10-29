@@ -8,6 +8,7 @@ const express = require('express');
 // Authentication middleware (JWT-based for example)
 const authenticateHospital = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
+    
 
     if (!token) {
         return res.status(401).json({ error: 'No token provided, authorization denied' });

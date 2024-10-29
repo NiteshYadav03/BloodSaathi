@@ -20,6 +20,7 @@ const mongoose = require('mongoose');
 
 const userRegistration = async (req, res) => {
     const { name, address, country, state, district, pincode, phoneNumber, email, password,dob,gender,bloodGroup} = req.body;
+    console.log(req.body);
 
     try {
         // Checking if all required fields are given
@@ -60,10 +61,10 @@ const userRegistration = async (req, res) => {
 
         // Saving newUser into the database
         const newUserCreated = await newUser.save();
-
+        console.log(newUserCreated);
         // Generate token
         const expiresInDays = 30 * 24;
-        const token = jwt.sign({ user_id: newUserCreated._id, email }, process.env.TOKEN_KEY, { expiresIn: "2h" });
+        const token = jwt.sign({ user_id: newUserCreated._id, email }, process.env.TOKEN_KEY, { expiresIn: `${expiresInDays}h` });
         newUserCreated.token = token;
 
         // Prepare response excluding password
@@ -118,7 +119,7 @@ const globalLogin = async (req, res) => {
             }
 
             // Create token
-            const token = jwt.sign({ user_id: user._id, email, role }, process.env.TOKEN_KEY, { expiresIn: "2h" });
+            const token = jwt.sign({ user_id: user._id, email, role }, process.env.TOKEN_KEY, { expiresIn: "5h" });
             user.token = token;
             console.log(user.token);
             // Respond with user
@@ -132,6 +133,7 @@ const globalLogin = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
 
 //logout function
 const userLogout = async (req, res) => {
@@ -152,6 +154,8 @@ const userLogout = async (req, res) => {
         }
         if(user){
             user.token="";
+            //also making local storage part null
+           
             await user.save();
             return res.status(200).json({message:"Logged out successfully"});
         }
