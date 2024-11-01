@@ -7,8 +7,10 @@ import Sliding from "./Sliding";
 import Stats from "./Stats";
 import { Button } from "./ui/button";
 import Footer from "./shared/Footer";
+import { useNavigate } from "react-router";
 
 const Home = () => {
+  const navigate= useNavigate();
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -23,8 +25,8 @@ const Home = () => {
           difference and save lives.
         </p>
         <div className="mt-3 flex">
-          <Button className='mr-3 hover:bg-[#ef342d]'>Request Blood</Button>
-          <Button className='ml-3 hover:bg-[#ef342d]'>Donate Blood</Button>
+          <Button onClick={()=>navigate('/signin')} className='mr-3 hover:bg-[#ef342d]'>Request Blood</Button>
+          <Button onClick={()=>navigate('/signin')} className='ml-3 hover:bg-[#ef342d]'>Donate Blood</Button>
         </div>
       </div>
       <Stats />

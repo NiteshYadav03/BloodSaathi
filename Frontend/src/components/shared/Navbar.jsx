@@ -48,8 +48,8 @@ export default function Navbar() {
           <div className="grid gap-2 py-6">
             <Link to="/" className="flex w-full items-center py-2 text-lg font-semibold">Home</Link>
             <Link to="/about" className="flex w-full items-center py-2 text-lg font-semibold">About</Link>
-            <Link to="/services" className="flex w-full items-center py-2 text-lg font-semibold">Donate Blood</Link>
-            <Link to="/request-blood" className="flex w-full items-center py-2 text-lg font-semibold">Request Blood</Link>
+            <Link to="/signin" className="flex w-full items-center py-2 text-lg font-semibold">Donate Blood</Link>
+            <Link to="/signin" className="flex w-full items-center py-2 text-lg font-semibold">Request Blood</Link>
             {isLoggedIn ? (
               <button onClick={handleLogout} className="flex w-full items-center py-2 text-lg font-semibold">
                 Logout
@@ -70,8 +70,8 @@ export default function Navbar() {
       <nav className="ml-auto hidden lg:flex gap-6">
         <Link to="/" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium">Home</Link>
         <Link to="/about" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium">About</Link>
-        <Link to="/services" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium">Donate Blood</Link>
-        <Link to="/request-blood" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium">Request Blood</Link>
+        <Link to="/signin" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium">Donate Blood</Link>
+        <Link to="/signin" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium">Request Blood</Link>
         {isLoggedIn ? (
           <div className="relative">
             <button className="flex items-center" onClick={handleViewProfile}>
