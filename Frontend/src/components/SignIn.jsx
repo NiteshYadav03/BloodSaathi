@@ -26,6 +26,7 @@ const SignIn = () => {
       // Check if the token is available
       if (response.data && response.data.user && response.data.user.token) {
         localStorage.setItem("token", response.data.user.token);
+        localStorage.setItem("role", userType);
         console.log("Token stored:", response.data.user.token); // Log the stored token
         window.location.href = "/"; // Redirect to home page
         setError(""); // Clear error state

@@ -61,6 +61,7 @@ const confirmBloodReception = async (req, res) => {
         const { requestId } = req.body;
         const {decision}=req.body;
         const bloodRequest = await BloodRequest.findById(requestId);
+        // console.log(bloodRequest);
         if (!bloodRequest) {
             return res.status(404).json({ error: "Blood request not found" });
         }
@@ -74,7 +75,10 @@ const confirmBloodReception = async (req, res) => {
         }
 
         const { hospitalId, bloodGroup, quantity } = bloodRequest;
+        // console.log(hospitalId, bloodGroup, quantity);
         const bloodStock = await BloodStock.findOne({ hospitalId, bloodGroup });
+        console.log(bloodStock);
+        // console.log(bloodStock);
         if (!bloodStock) {
             return res.status(404).json({ error: "Blood stock not found" });
         }
@@ -82,8 +86,10 @@ const confirmBloodReception = async (req, res) => {
             return res.status(400).json({ error: "Insufficient blood stock" });
         }
         bloodStock.quantity -= quantity;
+        console.log(bloodStock);
         await bloodStock.save();
         bloodRequest.status = "Completed";
+        console.log(bloodRequest);
         await bloodRequest.save();
         const receiving = new Receiving({
             userId: bloodRequest.userId,
@@ -118,13 +124,16 @@ const handleBloodReception = async (req, res) => {
   
     
     const pendingRequests = await BloodRequest.find({ status: "Pending" });
+
     if (pendingRequests.length === 0) {
         return res.status(404).json({ error: "No pending blood requests found" });
     }
 
     // Step 2: Confirm reception for a specific request
     const { requestId } = req.body; 
+    // console.log(requestId);
     const {decision}=req.body;
+    // console.log(decision);
     await confirmBloodReception({ body: { requestId,decision} }, res);
 };
 

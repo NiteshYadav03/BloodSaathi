@@ -43,7 +43,7 @@ const ApprovalWorkflow = () => {
           },
         }
       );
-      
+      console.log('Approval response:', response);
       // Only update state if the request is successful
       if (response.status === 200) {
         setRequests((prevRequests) =>
